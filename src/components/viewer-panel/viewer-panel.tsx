@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import { Toolbar } from "./toolbar";
+import { Toolbar, type ViewMode } from "./toolbar";
 import { SearchBar } from "./search-bar";
 import { JsonTreeView } from "./json-tree-view";
-import { filterJson } from "@/lib/json-utils";
+import { filterJson, formatJson } from "@/lib/json-utils";
+import { LineNumberedCode } from "@/components/ui/line-numbered-code";
 import { Braces, SearchX } from "lucide-react";
 
 interface ViewerPanelProps {
@@ -13,6 +14,7 @@ interface ViewerPanelProps {
 
 export function ViewerPanel({ jsonData }: ViewerPanelProps) {
   const [isMinified, setIsMinified] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("code");
   const [collapsed, setCollapsed] = useState<number | boolean>(2);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -46,6 +48,37 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
   const displayData = searchQuery ? filtered : jsonData;
   const noResults = searchQuery && filtered === null;
 
+  const renderContent = () => {
+    if (noResults) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+          <SearchX className="h-8 w-8 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">
+            No matches for &ldquo;{searchQuery}&rdquo;
+          </p>
+        </div>
+      );
+    }
+
+    if (viewMode === "tree") {
+      return (
+        <div className="p-4">
+          <JsonTreeView
+            data={displayData}
+            collapsed={searchQuery ? false : collapsed}
+            searchQuery={searchQuery}
+          />
+        </div>
+      );
+    }
+
+    const text = isMinified
+      ? JSON.stringify(displayData)
+      : formatJson(displayData);
+
+    return <LineNumberedCode value={text} />;
+  };
+
   return (
     <div className="flex flex-1 min-h-0 flex-col gap-3 p-4">
       <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide shrink-0">
@@ -58,32 +91,15 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
         <Toolbar
           jsonData={jsonData}
           isMinified={isMinified}
+          viewMode={viewMode}
           onToggleMinify={() => setIsMinified(!isMinified)}
+          onSetViewMode={setViewMode}
           onExpandAll={() => setCollapsed(false)}
           onCollapseAll={() => setCollapsed(true)}
         />
       </div>
       <div className="flex-1 min-h-0 rounded-md border bg-card overflow-auto">
-        <div className="p-4">
-          {noResults ? (
-            <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-              <SearchX className="h-8 w-8 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                No matches for &ldquo;{searchQuery}&rdquo;
-              </p>
-            </div>
-          ) : isMinified ? (
-            <pre className="whitespace-pre-wrap break-all font-mono text-xs">
-              {JSON.stringify(displayData)}
-            </pre>
-          ) : (
-            <JsonTreeView
-              data={displayData}
-              collapsed={searchQuery ? false : collapsed}
-              searchQuery={searchQuery}
-            />
-          )}
-        </div>
+        {renderContent()}
       </div>
     </div>
   );

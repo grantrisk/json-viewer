@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { LineNumberedTextarea } from "@/components/ui/line-numbered-textarea";
 import { ClipboardPaste } from "lucide-react";
 
 interface PasteTabProps {
@@ -20,11 +20,11 @@ export function PasteTab({ onLoad }: PasteTabProps) {
 
   return (
     <div className="flex flex-1 min-h-0 flex-col gap-3">
-      <Textarea
-        placeholder="Paste your JSON here..."
-        className="flex-1 min-h-[100px] font-mono text-sm resize-none"
+      <LineNumberedTextarea
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={setText}
+        placeholder="Paste your JSON here..."
+        className="flex-1 min-h-[100px]"
       />
       <div className="flex gap-2 shrink-0">
         <Button onClick={handleLoad} disabled={!text.trim()} className="flex-1">

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <rect width="128" height="128" rx="24" fill="#18181B"/>
+  <g>
+    <!-- Left brace -->
+    <path d="M38 32C38 32 28 32 28 42L28 54C28 58 24 62 20 64C24 66 28 70 28 74L28 86C28 96 38 96 38 96"
+      stroke="#A78BFA" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- Right brace -->
+    <path d="M90 32C90 32 100 32 100 42L100 54C100 58 104 62 108 64C104 66 100 70 100 74L100 86C100 96 90 96 90 96"
+      stroke="#A78BFA" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- Dots representing key:value -->
+    <circle cx="52" cy="52" r="4.5" fill="#60A5FA"/>
+    <circle cx="68" cy="52" r="4.5" fill="#34D399"/>
+    <circle cx="52" cy="64" r="4.5" fill="#60A5FA"/>
+    <circle cx="68" cy="64" r="4.5" fill="#FBBF24"/>
+    <circle cx="52" cy="76" r="4.5" fill="#60A5FA"/>
+    <circle cx="68" cy="76" r="4.5" fill="#F87171"/>
+  </g>
+</svg>
