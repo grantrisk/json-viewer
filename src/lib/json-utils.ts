@@ -22,66 +22,84 @@ export function getJsonSize(data: unknown): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function countNodes(data: unknown): number {
-  if (data === null || typeof data !== "object") return 1;
-  if (Array.isArray(data)) {
-    return 1 + data.reduce((sum, item) => sum + countNodes(item), 0);
+function nodeMatches(node: unknown, lowerQuery: string): boolean {
+  if (node === null || node === undefined) {
+    return String(node).toLowerCase().includes(lowerQuery);
   }
-  return 1 + Object.values(data).reduce((sum, val) => sum + countNodes(val), 0);
+  if (typeof node !== "object") {
+    return String(node).toLowerCase().includes(lowerQuery);
+  }
+  return false;
 }
 
-export interface MatchInfo {
-  matchCount: number;
-  matchingPaths: Set<string>;
-}
-
-export function searchJson(data: unknown, query: string): MatchInfo {
-  if (!query.trim()) return { matchCount: 0, matchingPaths: new Set() };
+/**
+ * Recursively filters a JSON tree to only include branches
+ * where a key or leaf value matches the query.
+ * Returns null if nothing in this subtree matches.
+ */
+export function filterJson(data: unknown, query: string): { filtered: unknown | null; matchCount: number } {
+  if (!query.trim()) return { filtered: data, matchCount: 0 };
 
   const lowerQuery = query.toLowerCase();
-  const matchingPaths = new Set<string>();
   let matchCount = 0;
 
-  function addAncestorPaths(path: string) {
-    const parts = path.split(".");
-    for (let i = 1; i <= parts.length; i++) {
-      matchingPaths.add(parts.slice(0, i).join("."));
-    }
-  }
-
-  function traverse(node: unknown, currentPath: string) {
-    if (node === null || node === undefined) {
-      if (String(node).toLowerCase().includes(lowerQuery)) {
+  function filter(node: unknown): unknown | null {
+    // Leaf / primitive
+    if (node === null || node === undefined || typeof node !== "object") {
+      if (nodeMatches(node, lowerQuery)) {
         matchCount++;
-        addAncestorPaths(currentPath);
+        return node;
       }
-      return;
-    }
-
-    if (typeof node !== "object") {
-      if (String(node).toLowerCase().includes(lowerQuery)) {
-        matchCount++;
-        addAncestorPaths(currentPath);
-      }
-      return;
+      return undefined; // sentinel: no match
     }
 
     if (Array.isArray(node)) {
-      node.forEach((item, index) => {
-        traverse(item, `${currentPath}.${index}`);
-      });
-    } else {
-      Object.entries(node as Record<string, unknown>).forEach(([key, value]) => {
-        const childPath = `${currentPath}.${key}`;
-        if (key.toLowerCase().includes(lowerQuery)) {
-          matchCount++;
-          addAncestorPaths(childPath);
-        }
-        traverse(value, childPath);
-      });
+      const results: unknown[] = [];
+      for (const item of node) {
+        const r = filter(item);
+        if (r !== undefined) results.push(r);
+      }
+      return results.length > 0 ? results : undefined;
     }
+
+    // Object
+    const obj = node as Record<string, unknown>;
+    const result: Record<string, unknown> = {};
+    let hasMatch = false;
+
+    for (const [key, value] of Object.entries(obj)) {
+      const keyMatches = key.toLowerCase().includes(lowerQuery);
+      if (keyMatches) matchCount++;
+
+      const childResult = filter(value);
+      if (keyMatches || childResult !== undefined) {
+        // If the key matches, include the full original value so context is preserved
+        result[key] = keyMatches ? value : childResult;
+        hasMatch = true;
+      }
+    }
+
+    return hasMatch ? result : undefined;
   }
 
-  traverse(data, "root");
-  return { matchCount, matchingPaths };
+  const filtered = filter(data);
+  return { filtered: filtered === undefined ? null : filtered, matchCount };
+}
+
+/**
+ * Check if a specific node's stringified value contains the query.
+ * Used by customizeNode for highlighting.
+ */
+export function valueMatchesQuery(node: unknown, query: string): boolean {
+  if (!query.trim()) return false;
+  const lowerQuery = query.toLowerCase();
+  if (node === null || node === undefined || typeof node !== "object") {
+    return String(node).toLowerCase().includes(lowerQuery);
+  }
+  return false;
+}
+
+export function keyMatchesQuery(key: string | number | undefined, query: string): boolean {
+  if (!query.trim() || key === undefined) return false;
+  return String(key).toLowerCase().includes(query.toLowerCase());
 }

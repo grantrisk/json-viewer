@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useState, useCallback, useMemo } from "react";
 import { Toolbar } from "./toolbar";
 import { SearchBar } from "./search-bar";
 import { JsonTreeView } from "./json-tree-view";
-import { searchJson } from "@/lib/json-utils";
-import { Braces } from "lucide-react";
+import { filterJson } from "@/lib/json-utils";
+import { Braces, SearchX } from "lucide-react";
 
 interface ViewerPanelProps {
   jsonData: unknown | null;
@@ -16,20 +15,17 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
   const [isMinified, setIsMinified] = useState(false);
   const [collapsed, setCollapsed] = useState<number | boolean>(2);
   const [searchQuery, setSearchQuery] = useState("");
-  const [matchCount, setMatchCount] = useState(0);
 
-  const handleSearch = useCallback(
-    (query: string) => {
-      setSearchQuery(query);
-      if (!query.trim() || !jsonData) {
-        setMatchCount(0);
-        return;
-      }
-      const result = searchJson(jsonData, query);
-      setMatchCount(result.matchCount);
-    },
-    [jsonData]
-  );
+  const { filtered, matchCount } = useMemo(() => {
+    if (!searchQuery.trim() || !jsonData) {
+      return { filtered: jsonData, matchCount: 0 };
+    }
+    return filterJson(jsonData, searchQuery);
+  }, [jsonData, searchQuery]);
+
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+  }, []);
 
   if (!jsonData) {
     return (
@@ -46,6 +42,9 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
       </div>
     );
   }
+
+  const displayData = searchQuery ? filtered : jsonData;
+  const noResults = searchQuery && filtered === null;
 
   return (
     <div className="flex flex-1 min-h-0 flex-col gap-3 p-4">
@@ -66,14 +65,21 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
       </div>
       <div className="flex-1 min-h-0 rounded-md border bg-card overflow-auto">
         <div className="p-4">
-          {isMinified ? (
+          {noResults ? (
+            <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+              <SearchX className="h-8 w-8 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">
+                No matches for &ldquo;{searchQuery}&rdquo;
+              </p>
+            </div>
+          ) : isMinified ? (
             <pre className="whitespace-pre-wrap break-all font-mono text-xs">
-              {JSON.stringify(jsonData)}
+              {JSON.stringify(displayData)}
             </pre>
           ) : (
             <JsonTreeView
-              data={jsonData}
-              collapsed={collapsed}
+              data={displayData}
+              collapsed={searchQuery ? false : collapsed}
               searchQuery={searchQuery}
             />
           )}
