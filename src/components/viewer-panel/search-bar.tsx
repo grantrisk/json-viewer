@@ -1,0 +1,54 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Search, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+interface SearchBarProps {
+  onSearch: (query: string) => void;
+  matchCount: number;
+  disabled: boolean;
+}
+
+export function SearchBar({ onSearch, matchCount, disabled }: SearchBarProps) {
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onSearch(query);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query, onSearch]);
+
+  return (
+    <div className="relative flex items-center gap-2">
+      <div className="relative flex-1">
+        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Search keys and values..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="pl-8 pr-8 h-9 text-sm"
+          disabled={disabled}
+        />
+        {query && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6"
+            onClick={() => setQuery("")}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
+      </div>
+      {query && (
+        <Badge variant="secondary" className="text-xs whitespace-nowrap">
+          {matchCount} {matchCount === 1 ? "match" : "matches"}
+        </Badge>
+      )}
+    </div>
+  );
+}
