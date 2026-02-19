@@ -6,7 +6,7 @@ import { ViewerPanel } from "@/components/viewer-panel/viewer-panel";
 import { useJsonStore } from "@/hooks/use-json-store";
 
 export default function Home() {
-  const { jsonData, error, isLoading, setIsLoading, setError, loadJson, clear } = useJsonStore();
+  const { jsonData, error, errorInfo, isLoading, setIsLoading, setError, loadJson, clear } = useJsonStore();
 
   return (
     <div className="flex h-screen flex-col">
@@ -17,6 +17,7 @@ export default function Home() {
             onLoad={loadJson}
             onError={setError}
             error={error}
+            errorInfo={errorInfo}
             isLoading={isLoading}
             setIsLoading={setIsLoading}
           />

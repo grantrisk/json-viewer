@@ -5,16 +5,18 @@ import { PasteTab } from "./paste-tab";
 import { UploadTab } from "./upload-tab";
 import { UrlTab } from "./url-tab";
 import { ClipboardPaste, Upload, Globe } from "lucide-react";
+import type { ParseErrorInfo } from "@/lib/json-utils";
 
 interface InputPanelProps {
   onLoad: (json: string) => void;
   onError: (error: string) => void;
   error: string | null;
+  errorInfo: ParseErrorInfo | null;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
 }
 
-export function InputPanel({ onLoad, onError, error, isLoading, setIsLoading }: InputPanelProps) {
+export function InputPanel({ onLoad, onError, error, errorInfo, isLoading, setIsLoading }: InputPanelProps) {
   return (
     <div className="flex flex-1 min-h-0 flex-col gap-3 p-4">
       <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide shrink-0">Input</h2>
@@ -34,7 +36,7 @@ export function InputPanel({ onLoad, onError, error, isLoading, setIsLoading }: 
           </TabsTrigger>
         </TabsList>
         <TabsContent value="paste" className="mt-3 flex flex-1 min-h-0 flex-col">
-          <PasteTab onLoad={onLoad} />
+          <PasteTab onLoad={onLoad} errorInfo={errorInfo} />
         </TabsContent>
         <TabsContent value="upload" className="mt-3">
           <UploadTab onLoad={onLoad} />
@@ -47,6 +49,11 @@ export function InputPanel({ onLoad, onError, error, isLoading, setIsLoading }: 
         <div className="shrink-0 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
           <p className="font-medium">Invalid JSON</p>
           <p className="mt-1 text-xs opacity-80">{error}</p>
+          {errorInfo?.line && (
+            <p className="mt-1 text-xs opacity-70">
+              Line {errorInfo.line}{errorInfo.column ? `, Column ${errorInfo.column}` : ""}
+            </p>
+          )}
         </div>
       )}
     </div>

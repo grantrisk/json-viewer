@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback, useState } from "react";
+import { useRef, useCallback, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 interface LineNumberedTextareaProps {
@@ -9,6 +9,7 @@ interface LineNumberedTextareaProps {
   placeholder?: string;
   className?: string;
   readOnly?: boolean;
+  errorLine?: number;
 }
 
 export function LineNumberedTextarea({
@@ -17,6 +18,7 @@ export function LineNumberedTextarea({
   placeholder,
   className,
   readOnly,
+  errorLine,
 }: LineNumberedTextareaProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const gutterRef = useRef<HTMLDivElement>(null);
@@ -30,6 +32,15 @@ export function LineNumberedTextarea({
       gutterRef.current.scrollTop = textareaRef.current.scrollTop;
     }
   }, []);
+
+  // Scroll to error line when it changes
+  useEffect(() => {
+    if (errorLine && textareaRef.current) {
+      const lineHeight = 26.4; // matches leading-[1.65rem] ≈ 26.4px
+      const scrollTop = (errorLine - 1) * lineHeight - textareaRef.current.clientHeight / 2;
+      textareaRef.current.scrollTop = Math.max(0, scrollTop);
+    }
+  }, [errorLine]);
 
   return (
     <div
@@ -45,7 +56,13 @@ export function LineNumberedTextarea({
         aria-hidden
       >
         {Array.from({ length: lineCount }, (_, i) => (
-          <div key={i} className="px-2">
+          <div
+            key={i}
+            className={cn(
+              "px-2",
+              errorLine === i + 1 && "bg-destructive/20 text-destructive font-bold"
+            )}
+          >
             {i + 1}
           </div>
         ))}

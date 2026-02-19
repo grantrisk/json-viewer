@@ -6,6 +6,7 @@ import { SearchBar } from "./search-bar";
 import { JsonTreeView } from "./json-tree-view";
 import { filterJson, formatJson } from "@/lib/json-utils";
 import { LineNumberedCode } from "@/components/ui/line-numbered-code";
+import { ErrorBoundary } from "./error-boundary";
 import { Braces, SearchX } from "lucide-react";
 
 interface ViewerPanelProps {
@@ -17,6 +18,8 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("code");
   const [collapsed, setCollapsed] = useState<number | boolean>(2);
   const [searchQuery, setSearchQuery] = useState("");
+  const [codeMatchCount, setCodeMatchCount] = useState(0);
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
 
   const { filtered, matchCount } = useMemo(() => {
     if (!searchQuery.trim() || !jsonData) {
@@ -27,7 +30,24 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
 
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
+    setCurrentMatchIndex(0);
   }, []);
+
+  const handleCodeMatchCount = useCallback((count: number) => {
+    setCodeMatchCount(count);
+  }, []);
+
+  const handleNavigate = useCallback(
+    (direction: "prev" | "next") => {
+      const total = viewMode === "code" ? codeMatchCount : matchCount;
+      if (total === 0) return;
+      setCurrentMatchIndex((prev) => {
+        if (direction === "next") return (prev + 1) % total;
+        return (prev - 1 + total) % total;
+      });
+    },
+    [viewMode, codeMatchCount, matchCount]
+  );
 
   if (!jsonData) {
     return (
@@ -45,8 +65,11 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
     );
   }
 
-  const displayData = searchQuery ? filtered : jsonData;
-  const noResults = searchQuery && filtered === null;
+  const isCodeView = viewMode === "code";
+  const displayData = searchQuery && !isCodeView ? filtered : jsonData;
+  const noResults = searchQuery && !isCodeView && filtered === null;
+
+  const activeMatchCount = isCodeView ? codeMatchCount : matchCount;
 
   const renderContent = () => {
     if (noResults) {
@@ -76,7 +99,14 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
       ? JSON.stringify(displayData)
       : formatJson(displayData);
 
-    return <LineNumberedCode value={text} />;
+    return (
+      <LineNumberedCode
+        value={text}
+        searchQuery={searchQuery}
+        onMatchCount={handleCodeMatchCount}
+        currentMatchIndex={currentMatchIndex}
+      />
+    );
   };
 
   return (
@@ -85,7 +115,14 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
         Viewer
       </h2>
       <div className="shrink-0">
-        <SearchBar onSearch={handleSearch} matchCount={matchCount} disabled={false} />
+        <SearchBar
+          onSearch={handleSearch}
+          matchCount={activeMatchCount}
+          disabled={false}
+          showNavigation={isCodeView && searchQuery.trim().length > 0}
+          currentMatchIndex={currentMatchIndex}
+          onNavigate={handleNavigate}
+        />
       </div>
       <div className="shrink-0">
         <Toolbar
@@ -99,7 +136,9 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
         />
       </div>
       <div className="flex-1 min-h-0 rounded-md border bg-card overflow-auto">
-        {renderContent()}
+        <ErrorBoundary jsonData={jsonData}>
+          {renderContent()}
+        </ErrorBoundary>
       </div>
     </div>
   );

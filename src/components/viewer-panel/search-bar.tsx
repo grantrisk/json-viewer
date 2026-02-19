@@ -3,16 +3,26 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, X } from "lucide-react";
+import { Search, X, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
   matchCount: number;
   disabled: boolean;
+  currentMatchIndex?: number;
+  onNavigate?: (direction: "prev" | "next") => void;
+  showNavigation?: boolean;
 }
 
-export function SearchBar({ onSearch, matchCount, disabled }: SearchBarProps) {
+export function SearchBar({
+  onSearch,
+  matchCount,
+  disabled,
+  currentMatchIndex,
+  onNavigate,
+  showNavigation,
+}: SearchBarProps) {
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -44,9 +54,33 @@ export function SearchBar({ onSearch, matchCount, disabled }: SearchBarProps) {
           </Button>
         )}
       </div>
+      {query && matchCount > 0 && showNavigation && onNavigate && (
+        <div className="flex items-center gap-0.5">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={() => onNavigate("prev")}
+            title="Previous match"
+          >
+            <ChevronUp className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={() => onNavigate("next")}
+            title="Next match"
+          >
+            <ChevronDown className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      )}
       {query && (
         <Badge variant="secondary" className="text-xs whitespace-nowrap">
-          {matchCount} {matchCount === 1 ? "match" : "matches"}
+          {showNavigation && matchCount > 0 && currentMatchIndex != null
+            ? `${currentMatchIndex + 1}/${matchCount}`
+            : `${matchCount} ${matchCount === 1 ? "match" : "matches"}`}
         </Badge>
       )}
     </div>
