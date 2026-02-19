@@ -20,6 +20,7 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [codeMatchCount, setCodeMatchCount] = useState(0);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+  const [filterEnabled, setFilterEnabled] = useState(false);
 
   const { filtered, matchCount } = useMemo(() => {
     if (!searchQuery.trim() || !jsonData) {
@@ -66,8 +67,8 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
   }
 
   const isCodeView = viewMode === "code";
-  const displayData = searchQuery && !isCodeView ? filtered : jsonData;
-  const noResults = searchQuery && !isCodeView && filtered === null;
+  const displayData = searchQuery && !isCodeView && filterEnabled ? filtered : jsonData;
+  const noResults = searchQuery && !isCodeView && filterEnabled && filtered === null;
 
   const activeMatchCount = isCodeView ? codeMatchCount : matchCount;
 
@@ -122,6 +123,9 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
           showNavigation={isCodeView && searchQuery.trim().length > 0}
           currentMatchIndex={currentMatchIndex}
           onNavigate={handleNavigate}
+          showFilterToggle={!isCodeView && searchQuery.trim().length > 0}
+          filterEnabled={filterEnabled}
+          onToggleFilter={() => setFilterEnabled((f) => !f)}
         />
       </div>
       <div className="shrink-0">

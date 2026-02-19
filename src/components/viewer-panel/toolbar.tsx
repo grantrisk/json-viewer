@@ -69,16 +69,22 @@ export function Toolbar({
         </Button>
       </div>
 
-      <Separator orientation="vertical" className="h-5 mx-1" />
+      {viewMode === "code" && (
+        <>
+          <Separator orientation="vertical" className="h-5 mx-1" />
 
-      <Button variant="ghost" size="sm" onClick={onToggleMinify} className="h-8 text-xs">
-        {isMinified ? (
-          <Maximize2 className="mr-1.5 h-3.5 w-3.5" />
-        ) : (
-          <Minimize2 className="mr-1.5 h-3.5 w-3.5" />
-        )}
-        {isMinified ? "Format" : "Minify"}
-      </Button>
+          <Button variant="ghost" size="sm" onClick={onToggleMinify} className="h-8 text-xs">
+            {isMinified ? (
+              <Maximize2 className="mr-1.5 h-3.5 w-3.5" />
+            ) : (
+              <Minimize2 className="mr-1.5 h-3.5 w-3.5" />
+            )}
+            {isMinified ? "Format" : "Minify"}
+          </Button>
+        </>
+      )}
+
+      <Separator orientation="vertical" className="h-5 mx-1" />
 
       <Button variant="ghost" size="sm" onClick={handleCopy} className="h-8 text-xs">
         {copied ? (

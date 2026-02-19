@@ -154,6 +154,9 @@ reliable, it doesn't belong here.
 - [ ] **Color contrast** — Verify all text/background combinations meet WCAG
   AA in both light and dark themes. The current search highlight colors
   need auditing.
+- [ ] **Tutorial and help text** - there could be some kind of tutorial or help 
+  text that helps guide the user to know what features are availble but they dont 
+  get in the way of the user. This should be thought out more
 
 ---
 

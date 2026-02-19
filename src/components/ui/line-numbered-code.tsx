@@ -88,6 +88,7 @@ export function LineNumberedCode({
   const gutterRef = useRef<HTMLDivElement>(null);
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const [pathCopied, setPathCopied] = useState(false);
+  const [clickedLine, setClickedLine] = useState<number | null>(null);
 
   const lines = value ? value.split("\n") : [""];
 
@@ -155,10 +156,14 @@ export function LineNumberedCode({
       const path = getJsonPathForLine(value, lineNum);
       if (path) {
         setSelectedPath(path);
+        setClickedLine(lineNum);
         setPathCopied(false);
         navigator.clipboard.writeText(path).then(() => {
           setPathCopied(true);
-          setTimeout(() => setPathCopied(false), 2000);
+          setTimeout(() => {
+            setPathCopied(false);
+            setClickedLine(null);
+          }, 2000);
         });
       }
     },
@@ -176,11 +181,19 @@ export function LineNumberedCode({
           {lines.map((_, i) => (
             <div
               key={i}
-              className="px-2 leading-5 cursor-pointer hover:text-foreground hover:bg-muted/80 transition-colors"
+              className={`px-2 leading-5 cursor-pointer hover:text-foreground hover:bg-muted/80 transition-colors ${
+                clickedLine === i + 1 ? "bg-primary/20 text-primary font-bold" : ""
+              }`}
               onClick={() => handleLineClick(i + 1)}
               title="Click to copy JSON path"
             >
-              {i + 1}
+              {clickedLine === i + 1 ? (
+                <span className="flex items-center justify-end gap-0.5">
+                  <Check className="h-2.5 w-2.5 text-green-500" />
+                </span>
+              ) : (
+                i + 1
+              )}
             </div>
           ))}
         </div>

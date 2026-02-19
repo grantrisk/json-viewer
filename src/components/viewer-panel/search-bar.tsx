@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, X, ChevronUp, ChevronDown } from "lucide-react";
+import { Search, X, ChevronUp, ChevronDown, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SearchBarProps {
@@ -13,6 +13,9 @@ interface SearchBarProps {
   currentMatchIndex?: number;
   onNavigate?: (direction: "prev" | "next") => void;
   showNavigation?: boolean;
+  showFilterToggle?: boolean;
+  filterEnabled?: boolean;
+  onToggleFilter?: () => void;
 }
 
 export function SearchBar({
@@ -22,6 +25,9 @@ export function SearchBar({
   currentMatchIndex,
   onNavigate,
   showNavigation,
+  showFilterToggle,
+  filterEnabled,
+  onToggleFilter,
 }: SearchBarProps) {
   const [query, setQuery] = useState("");
 
@@ -75,6 +81,17 @@ export function SearchBar({
             <ChevronDown className="h-3.5 w-3.5" />
           </Button>
         </div>
+      )}
+      {query && showFilterToggle && onToggleFilter && (
+        <Button
+          variant={filterEnabled ? "secondary" : "ghost"}
+          size="icon"
+          className="h-7 w-7 shrink-0"
+          onClick={onToggleFilter}
+          title={filterEnabled ? "Show all (highlighting matches)" : "Filter to matches only"}
+        >
+          <Filter className={`h-3.5 w-3.5 ${filterEnabled ? "text-primary" : ""}`} />
+        </Button>
       )}
       {query && (
         <Badge variant="secondary" className="text-xs whitespace-nowrap">
