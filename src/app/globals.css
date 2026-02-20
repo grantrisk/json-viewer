@@ -138,6 +138,60 @@
   display: inline-block;
 }
 
+/* Tree view - data type colors (light) */
+.json-view {
+  --json-property: oklch(0.45 0.2 260);
+  --json-index: oklch(0.45 0.2 260);
+  --json-number: oklch(0.5 0.2 30);
+  --json-string: oklch(0.45 0.15 145);
+  --json-boolean: oklch(0.45 0.2 300);
+  --json-null: oklch(0.55 0 0);
+}
+
+/* Tree view - data type colors (dark) */
+.dark .json-view {
+  --json-property: oklch(0.75 0.15 220);
+  --json-index: oklch(0.75 0.15 220);
+  --json-number: oklch(0.78 0.15 70);
+  --json-string: oklch(0.72 0.15 145);
+  --json-boolean: oklch(0.75 0.18 300);
+  --json-null: oklch(0.6 0 0);
+}
+
+/* Italic null values in tree view */
+.json-view .json-view--null {
+  font-style: italic;
+}
+
+/* Collapse count badge */
+.json-view .jv-size {
+  opacity: 0.7;
+  font-size: 0.85em;
+  margin-left: 4px;
+}
+
+/* Click-to-copy value targets in tree view */
+.json-view .json-view--string,
+.json-view .json-view--number,
+.json-view .json-view--boolean,
+.json-view .json-view--null {
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background-color 0.15s;
+}
+.json-view .json-view--string:hover,
+.json-view .json-view--number:hover,
+.json-view .json-view--boolean:hover,
+.json-view .json-view--null:hover {
+  background-color: oklch(0 0 0 / 6%);
+}
+.dark .json-view .json-view--string:hover,
+.dark .json-view .json-view--number:hover,
+.dark .json-view .json-view--boolean:hover,
+.dark .json-view .json-view--null:hover {
+  background-color: oklch(1 0 0 / 10%);
+}
+
 /* Syntax highlighting - light */
 .json-key { color: oklch(0.45 0.2 260); }
 .json-string { color: oklch(0.45 0.15 145); }

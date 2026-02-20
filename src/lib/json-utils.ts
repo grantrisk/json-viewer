@@ -1,9 +1,70 @@
+/**
+ * Strip JSONC extensions (// line comments, /* block comments *​/, trailing commas)
+ * while respecting quoted strings.
+ */
+export function stripJsonc(input: string): string {
+  let result = "";
+  let i = 0;
+
+  while (i < input.length) {
+    const ch = input[i];
+
+    // Quoted string – copy verbatim
+    if (ch === '"') {
+      result += '"';
+      i++;
+      while (i < input.length) {
+        if (input[i] === "\\") {
+          result += input[i] + (input[i + 1] ?? "");
+          i += 2;
+          continue;
+        }
+        if (input[i] === '"') {
+          result += '"';
+          i++;
+          break;
+        }
+        result += input[i];
+        i++;
+      }
+      continue;
+    }
+
+    // Line comment
+    if (ch === "/" && input[i + 1] === "/") {
+      i += 2;
+      while (i < input.length && input[i] !== "\n") i++;
+      continue;
+    }
+
+    // Block comment
+    if (ch === "/" && input[i + 1] === "*") {
+      i += 2;
+      while (i < input.length && !(input[i] === "*" && input[i + 1] === "/")) i++;
+      i += 2; // skip closing */
+      continue;
+    }
+
+    result += ch;
+    i++;
+  }
+
+  // Remove trailing commas before } or ]
+  return result.replace(/,(\s*[}\]])/g, "$1");
+}
+
 export function validateJson(input: string): { valid: boolean; data?: unknown; error?: string } {
   try {
     const data = JSON.parse(input);
     return { valid: true, data };
   } catch (e) {
-    return { valid: false, error: (e as Error).message };
+    // Try JSONC fallback
+    try {
+      const data = JSON.parse(stripJsonc(input));
+      return { valid: true, data };
+    } catch {
+      return { valid: false, error: (e as Error).message };
+    }
   }
 }
 
@@ -335,6 +396,14 @@ export function validateJsonWithPosition(input: string): { valid: boolean; data?
     const data = JSON.parse(input);
     return { valid: true, data };
   } catch (e) {
+    // Try JSONC fallback
+    try {
+      const data = JSON.parse(stripJsonc(input));
+      return { valid: true, data };
+    } catch {
+      // Fall through to original error reporting
+    }
+
     const msg = (e as Error).message;
     const errorInfo: ParseErrorInfo = { message: msg };
 

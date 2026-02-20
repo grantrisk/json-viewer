@@ -38,6 +38,7 @@ export function JsonTreeView({ data, collapsed, searchQuery }: JsonTreeViewProps
   const { resolvedTheme } = useTheme();
   const mounted = useMounted();
   const [copiedPath, setCopiedPath] = useState<string | null>(null);
+  const [copiedValue, setCopiedValue] = useState<string | null>(null);
 
   const customizeNode = useCallback(
     (params: { node: unknown; indexOrName: string | number | undefined; depth: number }) => {
@@ -52,6 +53,33 @@ export function JsonTreeView({ data, collapsed, searchQuery }: JsonTreeViewProps
       return undefined;
     },
     [searchQuery]
+  );
+
+  const handleValueClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const target = e.target as HTMLElement;
+      const valueClasses = [
+        "json-view--string",
+        "json-view--number",
+        "json-view--boolean",
+        "json-view--null",
+      ];
+      const isValue = valueClasses.some((cls) => target.classList.contains(cls));
+      if (!isValue) return;
+
+      let text = target.textContent ?? "";
+      // Strip surrounding quotes from strings
+      if (target.classList.contains("json-view--string") && text.startsWith('"') && text.endsWith('"')) {
+        text = text.slice(1, -1);
+      }
+
+      navigator.clipboard.writeText(text).then(() => {
+        const display = text.length > 40 ? text.slice(0, 40) + "..." : text;
+        setCopiedValue(display);
+        setTimeout(() => setCopiedValue(null), 2000);
+      });
+    },
+    []
   );
 
   const customizeCopy = useCallback(
@@ -80,12 +108,12 @@ export function JsonTreeView({ data, collapsed, searchQuery }: JsonTreeViewProps
   const isDark = resolvedTheme === "dark";
 
   return (
-    <div className="json-tree-wrapper text-sm relative">
+    <div className="json-tree-wrapper text-sm relative" onClick={handleValueClick}>
       <JsonView
         src={data}
         collapsed={collapsed}
         enableClipboard
-        displaySize
+        displaySize="collapsed"
         theme={isDark ? "vscode" : "github"}
         customizeNode={searchQuery ? customizeNode : undefined}
         customizeCopy={customizeCopy}
@@ -99,6 +127,13 @@ export function JsonTreeView({ data, collapsed, searchQuery }: JsonTreeViewProps
           <Check className="h-3 w-3 text-green-500" />
           <span className="text-muted-foreground">Copied path:</span>
           <span className="font-medium">{copiedPath}</span>
+        </div>
+      )}
+      {copiedValue && !copiedPath && (
+        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-xs font-mono shadow-lg animate-in fade-in slide-in-from-bottom-2">
+          <Check className="h-3 w-3 text-green-500" />
+          <span className="text-muted-foreground">Copied value:</span>
+          <span className="font-medium">{copiedValue}</span>
         </div>
       )}
     </div>

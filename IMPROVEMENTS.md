@@ -29,7 +29,7 @@ reliable, it doesn't belong here.
 - [x] **Auto-detect and load on paste** — Require the user to click "Load" after
   pasting is an extra step with no value. Auto-parse on paste (with debounce)
   and show a live preview. Keep the explicit "Load" as a fallback.
-- [ ] **Support JSON with comments / trailing commas** — Many real-world JSON
+- [x] **Support JSON with comments / trailing commas** — Many real-world JSON
   files (tsconfig, eslint configs) use JSONC. Strip comments and trailing
   commas before parsing so users don't hit a wall.
 - [ ] **Large paste performance** — Pasting 50k+ lines into the textarea with
@@ -58,15 +58,15 @@ reliable, it doesn't belong here.
 ## 2. JSON Viewing (Understand the Data)
 
 ### 2.1 Tree View
-- [ ] **Show data types visually** — Strings, numbers, booleans, nulls, arrays,
+- [x] **Show data types visually** — Strings, numbers, booleans, nulls, arrays,
   and objects should be visually distinct at a glance (color, icon, or label).
   The current tree view relies on the library defaults which are subtle.
-- [ ] **Show array lengths and object key counts** — When a node is collapsed,
+- [x] **Show array lengths and object key counts** — When a node is collapsed,
   show `[42 items]` or `{7 keys}` so users understand scale without expanding.
 - [x] **Click-to-copy path** — Clicking a key should copy its JSON path
   (e.g., `data.users[0].name`) to the clipboard. This is the #1 reason
   developers use JSON viewers.
-- [ ] **Click-to-copy value** — Clicking a value should offer to copy just that
+- [x] **Click-to-copy value** — Clicking a value should offer to copy just that
   value. Currently copy is whole-document only.
 - [ ] **Keyboard navigation** — Arrow keys to navigate the tree, Enter to
   expand/collapse, Escape to go up a level. Power users expect this.
@@ -189,16 +189,18 @@ backlog, not here:
 4. ~~Error boundary + parse error positions (4)~~
 5. ~~Auto-parse on paste (1.1)~~
 6. ~~Navigate between search matches (3)~~
+7. ~~Support JSONC (1.1)~~
+8. ~~Show data types visually in tree view (2.1)~~
+9. ~~Array length / object key count on collapse (2.1)~~
+10. ~~Click-to-copy value (2.1)~~
 
 **Do next** (polish and reliability):
-7. Virtualize tree/code for large files (5)
-8. ARIA labels and keyboard nav (6, 2.1)
-9. Support JSONC (1.1)
-10. Array length / object key count on collapse (2.1)
+11. Virtualize tree/code for large files (5)
+12. ARIA labels and keyboard nav (6, 2.1)
 
 **Do third** (quality of life):
-11. Breadcrumb path bar (2.3)
-12. Recent URLs (1.3)
-13. File size validation on upload (1.2)
-14. Regex search (3)
-15. Web Worker parsing (5)
+13. Breadcrumb path bar (2.3)
+14. Recent URLs (1.3)
+15. File size validation on upload (1.2)
+16. Regex search (3)
+17. Web Worker parsing (5)
