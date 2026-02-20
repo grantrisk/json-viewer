@@ -16,6 +16,7 @@ interface JsonTreeViewProps {
   data: unknown;
   collapsed: number | boolean;
   searchQuery: string;
+  onPathChange?: (path: string) => void;
 }
 
 function buildPathString(currentPath: string[]): string {
@@ -34,7 +35,7 @@ function buildPathString(currentPath: string[]): string {
   }, "");
 }
 
-export function JsonTreeView({ data, collapsed, searchQuery }: JsonTreeViewProps) {
+export function JsonTreeView({ data, collapsed, searchQuery, onPathChange }: JsonTreeViewProps) {
   const { resolvedTheme } = useTheme();
   const mounted = useMounted();
   const [copiedPath, setCopiedPath] = useState<string | null>(null);
@@ -87,6 +88,7 @@ export function JsonTreeView({ data, collapsed, searchQuery }: JsonTreeViewProps
       if (nodeMeta?.currentPath && nodeMeta.currentPath.length > 0) {
         const path = buildPathString(nodeMeta.currentPath);
         setCopiedPath(path);
+        onPathChange?.(path);
         setTimeout(() => setCopiedPath(null), 2000);
         // Return the path as the copied value
         return path;
@@ -94,7 +96,7 @@ export function JsonTreeView({ data, collapsed, searchQuery }: JsonTreeViewProps
       // For root, copy the stringified value
       return typeof node === "object" ? JSON.stringify(node, null, 2) : String(node);
     },
-    []
+    [onPathChange]
   );
 
   if (!mounted) {
@@ -123,14 +125,14 @@ export function JsonTreeView({ data, collapsed, searchQuery }: JsonTreeViewProps
         }}
       />
       {copiedPath && (
-        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-xs font-mono shadow-lg animate-in fade-in slide-in-from-bottom-2">
+        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-xs font-mono shadow-lg animate-in fade-in slide-in-from-bottom-2" aria-live="polite">
           <Check className="h-3 w-3 text-green-500" />
           <span className="text-muted-foreground">Copied path:</span>
           <span className="font-medium">{copiedPath}</span>
         </div>
       )}
       {copiedValue && !copiedPath && (
-        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-xs font-mono shadow-lg animate-in fade-in slide-in-from-bottom-2">
+        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-xs font-mono shadow-lg animate-in fade-in slide-in-from-bottom-2" aria-live="polite">
           <Check className="h-3 w-3 text-green-500" />
           <span className="text-muted-foreground">Copied value:</span>
           <span className="font-medium">{copiedValue}</span>

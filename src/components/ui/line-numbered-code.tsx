@@ -10,6 +10,7 @@ interface LineNumberedCodeProps {
   searchQuery?: string;
   onMatchCount?: (count: number) => void;
   currentMatchIndex?: number;
+  onPathSelect?: (path: string) => void;
 }
 
 /**
@@ -83,6 +84,7 @@ export function LineNumberedCode({
   searchQuery,
   onMatchCount,
   currentMatchIndex,
+  onPathSelect,
 }: LineNumberedCodeProps) {
   const codeRef = useRef<HTMLPreElement>(null);
   const gutterRef = useRef<HTMLDivElement>(null);
@@ -158,6 +160,7 @@ export function LineNumberedCode({
         setSelectedPath(path);
         setClickedLine(lineNum);
         setPathCopied(false);
+        onPathSelect?.(path);
         navigator.clipboard.writeText(path).then(() => {
           setPathCopied(true);
           setTimeout(() => {
@@ -167,7 +170,7 @@ export function LineNumberedCode({
         });
       }
     },
-    [value]
+    [value, onPathSelect]
   );
 
   return (
@@ -187,13 +190,7 @@ export function LineNumberedCode({
               onClick={() => handleLineClick(i + 1)}
               title="Click to copy JSON path"
             >
-              {clickedLine === i + 1 ? (
-                <span className="flex items-center justify-end gap-0.5">
-                  <Check className="h-2.5 w-2.5 text-green-500" />
-                </span>
-              ) : (
-                i + 1
-              )}
+              {i + 1}
             </div>
           ))}
         </div>

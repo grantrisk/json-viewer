@@ -39,7 +39,7 @@ reliable, it doesn't belong here.
 ### 1.2 File Upload
 - [ ] **Show a loading/progress indicator** — There is no feedback between
   dropping a file and seeing the result. For large files this is confusing.
-- [ ] **Validate file size before reading** — The URL fetch caps at 10MB but
+- [x] **Validate file size before reading** — The URL fetch caps at 10MB but
   file upload has no limit. Add a client-side size check with a clear message.
 - [ ] **Support multiple JSON-like extensions** — Accept `.jsonc`, `.geojson`,
   `.har`, `.jsonl` (line-delimited), not just `.json`. Users have JSON in
@@ -50,7 +50,7 @@ reliable, it doesn't belong here.
   status codes (404, 403, 500) and response bodies when possible.
 - [ ] **Add a retry button on failure** — Don't make the user re-enter the URL
   and click fetch again. One-click retry.
-- [ ] **Remember recent URLs** — Store the last 5 URLs in localStorage so users
+- [x] **Remember recent URLs** — Store the last 5 URLs in localStorage so users
   working with the same APIs don't re-type them every session.
 
 ---
@@ -83,7 +83,7 @@ reliable, it doesn't belong here.
   the clicked line (in a toast or status bar).
 
 ### 2.3 Both Views
-- [ ] **Breadcrumb / path bar** — When navigating deep JSON, show the current
+- [x] **Breadcrumb / path bar** — When navigating deep JSON, show the current
   path (e.g., `root > data > users > [0] > address`) so users don't lose
   context.
 - [ ] **Node count / depth summary** — Show total keys, max depth, and
@@ -145,7 +145,7 @@ reliable, it doesn't belong here.
 
 ## 6. Accessibility
 
-- [ ] **ARIA labels on all interactive elements** — Toolbar buttons, tabs,
+- [x] **ARIA labels on all interactive elements** — Toolbar buttons, tabs,
   search input, and tree nodes need descriptive labels for screen readers.
 - [ ] **Focus management** — After loading JSON, focus should move to the
   viewer panel. After searching, focus should stay in the search bar.
@@ -194,13 +194,12 @@ backlog, not here:
 9. ~~Array length / object key count on collapse (2.1)~~
 10. ~~Click-to-copy value (2.1)~~
 
-**Do next** (polish and reliability):
-11. Virtualize tree/code for large files (5)
-12. ARIA labels and keyboard nav (6, 2.1)
+11. ~~ARIA labels on interactive elements (6)~~
+12. ~~Breadcrumb path bar (2.3)~~
+13. ~~Recent URLs (1.3)~~
+14. ~~File size validation on upload (1.2)~~
 
-**Do third** (quality of life):
-13. Breadcrumb path bar (2.3)
-14. Recent URLs (1.3)
-15. File size validation on upload (1.2)
+**Do next** (polish and reliability):
+15. Virtualize tree/code for large files (5)
 16. Regex search (3)
 17. Web Worker parsing (5)

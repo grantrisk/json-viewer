@@ -7,7 +7,7 @@ import { JsonTreeView } from "./json-tree-view";
 import { filterJson, formatJson } from "@/lib/json-utils";
 import { LineNumberedCode } from "@/components/ui/line-numbered-code";
 import { ErrorBoundary } from "./error-boundary";
-import { Braces, SearchX } from "lucide-react";
+import { Braces, SearchX, ChevronRight } from "lucide-react";
 
 interface ViewerPanelProps {
   jsonData: unknown | null;
@@ -21,6 +21,7 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
   const [codeMatchCount, setCodeMatchCount] = useState(0);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [filterEnabled, setFilterEnabled] = useState(false);
+  const [currentPath, setCurrentPath] = useState<string | null>(null);
 
   const { filtered, matchCount } = useMemo(() => {
     if (!searchQuery.trim() || !jsonData) {
@@ -91,6 +92,7 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
             data={displayData}
             collapsed={searchQuery ? false : collapsed}
             searchQuery={searchQuery}
+            onPathChange={setCurrentPath}
           />
         </div>
       );
@@ -106,6 +108,7 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
         searchQuery={searchQuery}
         onMatchCount={handleCodeMatchCount}
         currentMatchIndex={currentMatchIndex}
+        onPathSelect={setCurrentPath}
       />
     );
   };
@@ -139,7 +142,17 @@ export function ViewerPanel({ jsonData }: ViewerPanelProps) {
           onCollapseAll={() => setCollapsed(true)}
         />
       </div>
-      <div className="flex-1 min-h-0 rounded-md border bg-card overflow-auto">
+      {currentPath && (
+        <div className="shrink-0 flex items-center gap-1 rounded-md bg-muted/50 px-3 py-1.5 text-xs font-mono text-muted-foreground animate-in fade-in duration-200 overflow-x-auto">
+          {currentPath.split(/(?=\.)|(?=\[)/).filter(Boolean).map((segment, i) => (
+            <span key={i} className="flex items-center gap-1 whitespace-nowrap">
+              {i > 0 && <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground/50" />}
+              <span>{segment.startsWith(".") ? segment.slice(1) : segment}</span>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="flex-1 min-h-0 rounded-md border bg-card overflow-auto" role="region" aria-label="JSON viewer">
         <ErrorBoundary jsonData={jsonData}>
           {renderContent()}
         </ErrorBoundary>

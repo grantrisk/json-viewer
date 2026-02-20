@@ -57,6 +57,7 @@ export function SearchBar({
             onClick={() => setQuery("")}
           >
             <X className="h-3 w-3" />
+            <span className="sr-only">Clear search</span>
           </Button>
         )}
       </div>
@@ -68,6 +69,7 @@ export function SearchBar({
             className="h-7 w-7"
             onClick={() => onNavigate("prev")}
             title="Previous match"
+            aria-label="Previous match"
           >
             <ChevronUp className="h-3.5 w-3.5" />
           </Button>
@@ -77,6 +79,7 @@ export function SearchBar({
             className="h-7 w-7"
             onClick={() => onNavigate("next")}
             title="Next match"
+            aria-label="Next match"
           >
             <ChevronDown className="h-3.5 w-3.5" />
           </Button>
@@ -89,12 +92,13 @@ export function SearchBar({
           className="h-7 w-7 shrink-0"
           onClick={onToggleFilter}
           title={filterEnabled ? "Show all (highlighting matches)" : "Filter to matches only"}
+          aria-label="Toggle filter"
         >
           <Filter className={`h-3.5 w-3.5 ${filterEnabled ? "text-primary" : ""}`} />
         </Button>
       )}
       {query && (
-        <Badge variant="secondary" className="text-xs whitespace-nowrap">
+        <Badge variant="secondary" className="text-xs whitespace-nowrap" aria-live="polite">
           {showNavigation && matchCount > 0 && currentMatchIndex != null
             ? `${currentMatchIndex + 1}/${matchCount}`
             : `${matchCount} ${matchCount === 1 ? "match" : "matches"}`}

@@ -347,7 +347,9 @@ export function getJsonPathForLine(text: string, lineNumber: number): string {
         contextStack.pop();
         indexStack.pop();
         if (path.length > 0) path.pop();
+        currentKey = null;
       } else if (ch === ",") {
+        currentKey = null;
         if (contextStack.length > 0 && contextStack[contextStack.length - 1] === "array") {
           indexStack[indexStack.length - 1]++;
         }
